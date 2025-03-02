@@ -26,7 +26,7 @@ configurePassport();
 const app = express();
 const httpServer = http.createServer(app);
 
-const MongoDBStore = new MongoDBStore({
+const store = new MongoDBStore({
   uri: process.env.MONGO_URI,
   collection: "sessions",
 })
