@@ -42,23 +42,24 @@ const userResolver = {
         login: async(_, {input}, context) => {
             try {
                 const {username, password} = input;
+                if (!loginData.username || !loginData.password) throw new Error("All fields are required");
                 const {user} = await context.authenticate("graphql-local", {username, password});
 
                 await context.login(user);
                 return user;
             } catch (error) {
                 console.log("Error in login:", error);
-                throw new Error(err.message || "Internal server error");
+                throw new Error(error.message || "Internal server error");
             }
         },
 
         logout: async(_, __, context) => {
             try {
                 await context.logout();
-                req.session.destroy((err) => {
+                context.req.session.destroy((err) => {
                     if(err) throw err
                 })
-                res.clearCookie("connect.sid");
+                context.res.clearCookie("connect.sid");
 
                 return {message: "Logout successful"}
             } catch (error) {
@@ -71,6 +72,7 @@ const userResolver = {
     Query: {
         authUser: async (_,__, context) => {
             try {
+                
                 const user = await context.getUser()
                 return user;
             } catch (error) {
