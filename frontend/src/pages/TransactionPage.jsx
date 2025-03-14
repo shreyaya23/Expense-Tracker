@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom"; // Import useNavigate
 import { GET_TRANSACTION, GET_TRANSACTION_STATISTICS } from "../graphql/queries/transactionQuery";
 import { UPDATE_TRANSACTION } from "../graphql/mutations/transactionMutation";
 import toast from "react-hot-toast";
@@ -8,14 +8,12 @@ import TransactionFormSkeleton from "../components/skeletons/TransactionFormSkel
 
 const TransactionPage = () => {
 	const { id } = useParams();
+	const navigate = useNavigate(); // Initialize useNavigate
 	const { loading, data } = useQuery(GET_TRANSACTION, {
 		variables: { id: id },
 	});
 
-	console.log("Transaction", data);
-
 	const [updateTransaction, { loading: loadingUpdate }] = useMutation(UPDATE_TRANSACTION, {
-		// https://github.com/apollographql/apollo-client/issues/5419 => refetchQueries is not working, and here is how we fixed it
 		refetchQueries: [{ query: GET_TRANSACTION_STATISTICS }],
 	});
 
@@ -30,8 +28,7 @@ const TransactionPage = () => {
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-		const amount = parseFloat(formData.amount); // convert amount to number bc by default it is string
-		// and the reason it's coming from an input field
+		const amount = parseFloat(formData.amount); 
 		try {
 			await updateTransaction({
 				variables: {
@@ -43,6 +40,7 @@ const TransactionPage = () => {
 				},
 			});
 			toast.success("Transaction updated successfully");
+			navigate("/"); // Redirect to home after update
 		} catch (error) {
 			toast.error(error.message);
 		}
@@ -97,13 +95,11 @@ const TransactionPage = () => {
 						/>
 					</div>
 				</div>
+
 				{/* PAYMENT TYPE */}
 				<div className='flex flex-wrap gap-3'>
 					<div className='w-full flex-1 mb-6 md:mb-0'>
-						<label
-							className='block uppercase tracking-wide text-white text-xs font-bold mb-2'
-							htmlFor='paymentType'
-						>
+						<label className='block uppercase tracking-wide text-white text-xs font-bold mb-2' htmlFor='paymentType'>
 							Payment Type
 						</label>
 						<div className='relative'>
@@ -112,29 +108,17 @@ const TransactionPage = () => {
 								id='paymentType'
 								name='paymentType'
 								onChange={handleInputChange}
-								defaultValue={formData.paymentType}
+								value={formData.paymentType}
 							>
 								<option value={"card"}>Card</option>
 								<option value={"cash"}>Cash</option>
 							</select>
-							<div className='pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700'>
-								<svg
-									className='fill-current h-4 w-4'
-									xmlns='http://www.w3.org/2000/svg'
-									viewBox='0 0 20 20'
-								>
-									<path d='M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z' />
-								</svg>
-							</div>
 						</div>
 					</div>
 
 					{/* CATEGORY */}
 					<div className='w-full flex-1 mb-6 md:mb-0'>
-						<label
-							className='block uppercase tracking-wide text-white text-xs font-bold mb-2'
-							htmlFor='category'
-						>
+						<label className='block uppercase tracking-wide text-white text-xs font-bold mb-2' htmlFor='category'>
 							Category
 						</label>
 						<div className='relative'>
@@ -143,21 +127,12 @@ const TransactionPage = () => {
 								id='category'
 								name='category'
 								onChange={handleInputChange}
-								defaultValue={formData.category}
+								value={formData.category}
 							>
 								<option value={"saving"}>Saving</option>
 								<option value={"expense"}>Expense</option>
 								<option value={"investment"}>Investment</option>
 							</select>
-							<div className='pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700'>
-								<svg
-									className='fill-current h-4 w-4'
-									xmlns='http://www.w3.org/2000/svg'
-									viewBox='0 0 20 20'
-								>
-									<path d='M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z' />
-								</svg>
-							</div>
 						</div>
 					</div>
 
@@ -181,10 +156,7 @@ const TransactionPage = () => {
 				{/* LOCATION */}
 				<div className='flex flex-wrap gap-3'>
 					<div className='w-full flex-1 mb-6 md:mb-0'>
-						<label
-							className='block uppercase tracking-wide text-white text-xs font-bold mb-2'
-							htmlFor='location'
-						>
+						<label className='block uppercase tracking-wide text-white text-xs font-bold mb-2' htmlFor='location'>
 							Location
 						</label>
 						<input
@@ -200,28 +172,24 @@ const TransactionPage = () => {
 
 					{/* DATE */}
 					<div className='w-full flex-1'>
-						<label
-							className='block uppercase tracking-wide text-white text-xs font-bold mb-2'
-							htmlFor='date'
-						>
+						<label className='block uppercase tracking-wide text-white text-xs font-bold mb-2' htmlFor='date'>
 							Date
 						</label>
 						<input
 							type='date'
 							name='date'
 							id='date'
-							className='appearance-none block w-full bg-gray-200 text-gray-700 border  rounded py-[11px] px-4 mb-3 leading-tight focus:outline-none
-						 focus:bg-white'
+							className='appearance-none block w-full bg-gray-200 text-gray-700 border  rounded py-[11px] px-4 mb-3 leading-tight focus:outline-none focus:bg-white'
 							placeholder='Select date'
 							value={formData.date}
 							onChange={handleInputChange}
 						/>
 					</div>
 				</div>
+
 				{/* SUBMIT BUTTON */}
 				<button
-					className='text-white font-bold w-full rounded px-4 py-2 bg-gradient-to-br
-          from-pink-500 to-pink-500 hover:from-pink-600 hover:to-pink-600'
+					className='text-white font-bold w-full rounded px-4 py-2 bg-gradient-to-br from-pink-500 to-pink-500 hover:from-pink-600 hover:to-pink-600'
 					type='submit'
 					disabled={loadingUpdate}
 				>
