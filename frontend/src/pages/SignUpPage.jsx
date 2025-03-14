@@ -14,9 +14,9 @@ const SignUpPage = () => {
 		gender: "",
 	});
 
-	const [signup, {loading}] = useMutation(SIGN_UP, {
-		refetchQueries: ["GET_AUTHENTICATED_USER"],
-	})
+	const [signup, { loading }] = useMutation(SIGN_UP, {
+		refetchQueries: ["GetAuthenticatedUser"],
+	});
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
@@ -47,7 +47,6 @@ const SignUpPage = () => {
 			}));
 		}
 	};
-
 
 	return (
 		<div className='h-screen flex justify-center items-center'>
@@ -109,7 +108,6 @@ const SignUpPage = () => {
 								>
 									{loading ? "Loading..." : "Sign Up"}
 								</button>
-								
 							</div>
 						</form>
 						<div className='mt-4 text-sm text-gray-600 text-center'>
