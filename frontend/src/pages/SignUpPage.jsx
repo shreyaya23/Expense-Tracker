@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import RadioButton from "../components/RadioButton";
 import InputField from "../components/InputField";
 import { useMutation } from "@apollo/client";
@@ -14,18 +14,30 @@ const SignUpPage = () => {
 		gender: "",
 	});
 
-	const [signup, {loading}] = useMutation(SIGN_UP, {
+	const navigate = useNavigate();
+
+	const [signup, { loading }] = useMutation(SIGN_UP, {
 		refetchQueries: ["GET_AUTHENTICATED_USER"],
-	})
+	});
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
+
+		// Basic client-side validation
+		const { name, username, password, gender } = signUpData;
+		if (!name || !username || !password || !gender) {
+			toast.error("Please fill in all fields.");
+			return;
+		}
+
 		try {
 			await signup({
 				variables: {
 					input: signUpData,
 				},
 			});
+			toast.success("Sign-up successful! Please log in.");
+			navigate("/login");
 		} catch (error) {
 			console.error("Error:", error);
 			toast.error(error.message);
@@ -47,7 +59,6 @@ const SignUpPage = () => {
 			}));
 		}
 	};
-
 
 	return (
 		<div className='h-screen flex justify-center items-center'>
@@ -73,7 +84,6 @@ const SignUpPage = () => {
 								value={signUpData.username}
 								onChange={handleChange}
 							/>
-
 							<InputField
 								label='Password'
 								id='password'
@@ -109,7 +119,6 @@ const SignUpPage = () => {
 								>
 									{loading ? "Loading..." : "Sign Up"}
 								</button>
-								
 							</div>
 						</form>
 						<div className='mt-4 text-sm text-gray-600 text-center'>
